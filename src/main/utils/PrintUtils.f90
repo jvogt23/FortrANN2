@@ -21,7 +21,7 @@ contains
         do i = 1, dimRow
             write(*, fmt='(a)', advance='no') '['
             do j = 1, dimCol
-                write(*, fmt='(F20.8)', advance='no') arr(i, j)
+                write(*, fmt='(F20.8)', advance='no') mat(i, j)
             end do
             write(*,*) ']'
         end do
@@ -49,7 +49,7 @@ contains
             return
         end if
         do i = 1, len(strn) - len(pat)
-            if (strn(i:i + len(pat) - 1) .eq. b) then
+            if (strn(i:i + len(pat) - 1) .eq. pat) then
                 ret = ret + 1
             end if
         end do

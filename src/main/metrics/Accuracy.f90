@@ -8,9 +8,10 @@
 ! where the correct value should be.
 
 module cls_Accuracy
+    implicit none
 
     type :: Accuracy
-        real(kind=8), private :: accuracy
+        real(kind=8), private :: accuracy = 0.0
     contains
         procedure :: calculate
         procedure :: getAccuracy
@@ -34,6 +35,8 @@ contains
 
         if(size(probabilities, 1) .ne. size(actual)) then
             print *, "Accuracy::calculate: An argument constraint was violated."
+            print *, "Size of network output probabilities and actual"
+            print *, "answers must match."
             stop
         end if
 
@@ -41,7 +44,7 @@ contains
         predEqActual = 0.0
 
         allocate(predictions(size(probabilities, 1)))
-        predictions = maxloc(probabilities, 2)
+        predictions = maxloc(probabilities, dim=2)
         predEqActual = 0.0
         do i = 1, size(predictions)
             if (predictions(i).eq.actual(i)) then
