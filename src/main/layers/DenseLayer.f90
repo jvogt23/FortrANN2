@@ -18,6 +18,9 @@ module cls_DenseLayer
         procedure, public :: getOutputs
         procedure, public :: getWeights
         procedure, public :: getBiases
+        procedure, public :: getDWeights
+        procedure, public :: getDBiases
+        procedure, public :: getDInputs
         procedure, public :: setWeights
         procedure, public :: setBiases
     end type DenseLayer
@@ -127,6 +130,39 @@ contains
             biases = self%biases
         end if
     end function getBiases
+
+    function getDWeights(self) result(dweights)
+        class(DenseLayer), intent(in) :: self
+        real(kind=8), dimension(:,:), allocatable :: dweights
+        
+        if (.not.allocated(self%dweights)) then
+            allocate(dweights(0,0))
+        else
+            dweights = self%dweights
+        end if
+    end function getDWeights
+
+    function getDBiases(self) result(dbiases)
+        class(DenseLayer), intent(in) :: self
+        real(kind=8), dimension(:), allocatable :: dbiases
+
+        if (.not.allocated(self%dbiases)) then
+            allocate(dbiases(0))
+        else
+            dbiases = self%dbiases
+        end if
+    end function getDBiases
+
+    function getDInputs(self) result(dinputs)
+        class(DenseLayer), intent(in) :: self
+        real(kind=8), dimension(:,:), allocatable :: dinputs
+
+        if (.not.allocated(self%dinputs)) then
+            allocate(dinputs(0,0))
+        else
+            dinputs = self%dinputs
+        end if
+    end function getDInputs
 
     subroutine setWeights(self, weights)
         class(DenseLayer), intent(inout) :: self

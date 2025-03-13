@@ -35,10 +35,17 @@ program main
   real(kind=8), dimension(:,:), allocatable :: bestL2Weights
   real(kind=8), dimension(:), allocatable :: bestL2Biases
   real(kind=8) :: bestLoss, bestAccuracy
+  real(kind=8) :: learningRate
 
   ! Control variables
   integer :: i
+  logical :: dumb_algo ! If false, use backpropogation - used for comparison
 
+  dumb_algo = .false.
+  learningRate = 0.01
+
+
+  ! Read dataset and set up
   csv_path = "X.csv"
   allocate(x(300,2))
 
@@ -57,70 +64,105 @@ program main
   call csv%get(1, y_true, status_ok)
   y_true = y_true + 1
 
-  call layer1%init(2, 3)
-  bestL1Weights = layer1%getWeights()
-  bestL1Biases = layer1%getBiases()
 
-  call layer2%init(3, 3)
-  bestL2Weights = layer2%getWeights()
-  bestL2Biases = layer2%getBiases()
 
-  bestLoss = huge(0.0)
-  bestAccuracy = 0.0
 
-  do i = 1, 10000
-    call layer1%setWeights(bestL1Weights +&
-      0.05 * rand_normal_mat(size(bestL1Weights, 1), size(bestL1weights, 2)))
-    call layer1%setBiases(&
-      bestL1Biases + 0.05 * rand_normal_arr(size(bestL1Biases)))
-    call layer2%setWeights(bestL2Weights +&
-      0.05 * rand_normal_mat(size(bestL2Weights, 1), size(bestL2weights, 2)))
-    call layer2%setBiases(&
-      bestL2Biases + 0.05 * rand_normal_arr(size(bestL2Biases)))
+  if (dumb_algo) then
+    call layer1%init(2, 3)
+    bestL1Weights = layer1%getWeights()
+    bestL1Biases = layer1%getBiases()
 
-    call layer1%forward(x)
-    call activator1%forward(layer1)
-    call layer2%forward(activator1%getOutputs())
-    call activator2%forward(layer2)
+    call layer2%init(3, 3)
+    bestL2Weights = layer2%getWeights()
+    bestL2Biases = layer2%getBiases()
 
-    call lossCalc%calculateLoss(activator2%getOutputs(), y_true)
-    call accuracyCalc%calculate(activator2%getOutputs(), y_true)
+    bestLoss = huge(0.0)
+    bestAccuracy = 0.0
 
-    if (lossCalc%getLoss() < bestLoss) then
-      bestLoss = lossCalc%getLoss()
-      bestAccuracy = accuracyCalc%getAccuracy()
-      bestL1Weights = layer1%getWeights()
-      bestL1Biases = layer1%getBiases()
-      bestL2Weights = layer2%getWeights()
-      bestL2Biases = layer2%getBiases()
-      print *, "New weights and biases found"
-      print *, "Iteration: "
-      print *, i
-      print *, "Loss: "
-      print *, lossCalc%getLoss()
-      print *, "Accuracy: "
-      print *, accuracyCalc%getAccuracy()
-    else
-      call layer1%setWeights(bestL1Weights)
-      call layer1%setBiases(bestL1Biases)
-      call layer2%setWeights(bestL2Weights)
-      call layer2%setBiases(bestL2Biases)
-    end if
-  end do
+    do i = 1, 10000
+      call layer1%setWeights(bestL1Weights +&
+        0.05 * rand_normal_mat(size(bestL1Weights, 1), size(bestL1weights, 2)))
+      call layer1%setBiases(&
+        bestL1Biases + 0.05 * rand_normal_arr(size(bestL1Biases)))
+      call layer2%setWeights(bestL2Weights +&
+        0.05 * rand_normal_mat(size(bestL2Weights, 1), size(bestL2weights, 2)))
+      call layer2%setBiases(&
+        bestL2Biases + 0.05 * rand_normal_arr(size(bestL2Biases)))
 
-  print *, "Best Layer 1 Biases:"
-  print *, bestL1Biases
-  print *, "Best Layer 1 Weights:"
-  call print_matrix(bestL1Weights)
-  print *, "Best Layer 2 Biases:"
-  print *, bestL2Biases
-  print *, "Best Layer 2 Weights:"
-  call print_matrix(bestL2Weights)
+      call layer1%forward(x)
+      call activator1%forward(layer1)
+      call layer2%forward(activator1%getOutputs())
+      call activator2%forward(layer2)
 
-  print *, "Best Loss achieved: "
-  print *, bestLoss
-  print *, "Best Accuracy achieved:"
-  print *, bestAccuracy
+      call lossCalc%calculateLoss(activator2%getOutputs(), y_true)
+      call accuracyCalc%calculate(activator2%getOutputs(), y_true)
+
+      if (lossCalc%getLoss() < bestLoss) then
+        bestLoss = lossCalc%getLoss()
+        bestAccuracy = accuracyCalc%getAccuracy()
+        bestL1Weights = layer1%getWeights()
+        bestL1Biases = layer1%getBiases()
+        bestL2Weights = layer2%getWeights()
+        bestL2Biases = layer2%getBiases()
+        print *, "New weights and biases found"
+        print *, "Iteration: "
+        print *, i
+        print *, "Loss: "
+        print *, lossCalc%getLoss()
+        print *, "Accuracy: "
+        print *, accuracyCalc%getAccuracy()
+      else
+        call layer1%setWeights(bestL1Weights)
+        call layer1%setBiases(bestL1Biases)
+        call layer2%setWeights(bestL2Weights)
+        call layer2%setBiases(bestL2Biases)
+      end if
+    end do
+
+    print *, "Best Layer 1 Biases:"
+    print *, bestL1Biases
+    print *, "Best Layer 1 Weights:"
+    call print_matrix(bestL1Weights)
+    print *, "Best Layer 2 Biases:"
+    print *, bestL2Biases
+    print *, "Best Layer 2 Weights:"
+    call print_matrix(bestL2Weights)
+
+    print *, "Best Loss achieved: "
+    print *, bestLoss
+    print *, "Best Accuracy achieved:"
+    print *, bestAccuracy
+  else
+    call layer1%init(2, 3)
+
+    call layer2%init(3, 3)
+                              ! TODO: Add feedback stuff and test 
+    do i = 1, 10000
+      call layer1%forward(x)
+      call activator%forward(layer1)
+      call layer2%forward(activator1%getOutputs())
+      call activator2%forward(layer2)
+      call lossCalc%calculateLoss(activator2%getOutputs(), y_true)
+      call accuracyCalc%calculate(activator2%getOutputs(), y_true)
+
+      ! go backwards
+      call lossCalc%calculateDLoss(activator2%getOutputs(), actual)
+      call activator2%backward(lossCalc%getDLoss())
+      call layer2%backward(activator2%getDInputs())
+      call activator1%backward(layer2%getDInputs())
+      call layer1%backward(activator1%getDInputs())
+
+      ! update the weights
+      call layer2%setWeights(&
+        layer2%getWeights() - learningRate * layer2%getDWeights())
+      call layer2%setBiases(&
+        layer2%getBiases() - learningRate * layer2%getDBiases())
+      call layer1%setWeights(&
+        layer1%getWeights() - learningRate * layer1%getDWeights())
+      call layer1%setBiases(&
+        layer1%getBiases() - learningRate * layer1%getDBiases())
+    end do
+  end if
 
 
 contains

@@ -8,6 +8,7 @@ module cls_Loss
         procedure, public :: calculateLoss
         procedure, public :: calculateDLoss
         procedure, public :: getLoss
+        procedure, public :: getDLoss
     end type Loss
     
 contains
@@ -81,5 +82,11 @@ contains
         class(Loss) :: self
         lossv = self%loss
     end function getLoss
+
+    function getDLoss(self) result(dlossv)
+        class(Loss), intent(in) :: self
+        real(kind=8), dimension(:,:) :: dlossv
+        dlossv = self%loss
+    end function getDLoss
 
 end module cls_Loss 
