@@ -137,7 +137,7 @@ program main
 
     call layer2%init(3, 3)
                               ! TODO: Add feedback stuff and test 
-    do i = 1, 10000
+    do i = 1, 10
       call layer1%forward(x)
       call activator1%forward(layer1)
       call layer2%forward(activator1%getOutputs())
