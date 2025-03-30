@@ -37,7 +37,7 @@ contains
         real(kind=8), dimension(:), allocatable :: single_output, single_dvalue
         real(kind=8), dimension(:,:), allocatable :: diagflat, jacobian
         real(kind=8), dimension(:,:), allocatable :: activator_outputs
-        integer :: i, j
+        integer :: i, j, k
 
         if (.not.self%completed_forward) then
             print *, "Cannot perform a backward pass before a forward pass."
@@ -49,7 +49,9 @@ contains
         do i = 1, size(activator_outputs, 1)
             single_output = activator_outputs(i, :)
             single_dvalue = dvalues(i, :)
-            allocate(diagflat(size(single_output), size(single_output)))
+            if (.not.allocated(diagflat)) then
+                allocate(diagflat(size(single_output), size(single_output)))
+            end if
             diagflat = 0
             do j = 1, size(single_output)
                 diagflat(j,j) = single_output(j)

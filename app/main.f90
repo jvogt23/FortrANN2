@@ -139,14 +139,14 @@ program main
                               ! TODO: Add feedback stuff and test 
     do i = 1, 10000
       call layer1%forward(x)
-      call activator%forward(layer1)
+      call activator1%forward(layer1)
       call layer2%forward(activator1%getOutputs())
       call activator2%forward(layer2)
       call lossCalc%calculateLoss(activator2%getOutputs(), y_true)
       call accuracyCalc%calculate(activator2%getOutputs(), y_true)
 
       ! go backwards
-      call lossCalc%calculateDLoss(activator2%getOutputs(), actual)
+      call lossCalc%calculateDLoss(activator2%getOutputs(), y_true)
       call activator2%backward(lossCalc%getDLoss())
       call layer2%backward(activator2%getDInputs())
       call activator1%backward(layer2%getDInputs())
@@ -162,6 +162,21 @@ program main
       call layer1%setBiases(&
         layer1%getBiases() - learningRate * layer1%getDBiases())
     end do
+
+    print *, "Final Layer 1 Biases:"
+    print *, layer1%getBiases()
+    print *, "Final Layer 1 Weights:"
+    call print_matrix(layer1%getWeights())
+
+    print *, "Final Layer 2 Biases:"
+    print *, layer2%getBiases()
+    print *, "Final Layer 2 Weights:"
+    call print_matrix(layer2%getWeights())
+
+    print *, "Final Loss:"
+    print *, lossCalc%getLoss()
+    print *, "Final Accuracy:"
+    print *, accuracyCalc%getAccuracy()
   end if
 
 

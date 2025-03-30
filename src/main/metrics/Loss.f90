@@ -85,8 +85,8 @@ contains
 
     function getDLoss(self) result(dlossv)
         class(Loss), intent(in) :: self
-        real(kind=8), dimension(:,:) :: dlossv
-        dlossv = self%loss
+        real(kind=8), dimension(:,:), ALLOCATABLE :: dlossv
+        dlossv = self%dInputs
     end function getDLoss
 
 end module cls_Loss 
