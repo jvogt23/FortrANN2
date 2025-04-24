@@ -6,14 +6,13 @@ module cls_Loss
         real(kind=8), dimension(:,:), allocatable, private :: dInputs
     contains
         procedure, public :: calculateLoss
-        procedure, public :: calculateDLoss
+        procedure, public :: calcDLossDSoftmaxCombined
         procedure, public :: getLoss
         procedure, public :: getDLoss
     end type Loss
     
 contains
 
-    ! TODO: This method may be inefficient. How to make better?
     subroutine calculateLoss(self, outputs, actual)
         class(Loss), intent(inout) :: self
         real(kind=8), dimension(:,:), intent(in) :: outputs
@@ -50,32 +49,19 @@ contains
         self%loss = sum(sample_losses) / size(sample_losses)
     end subroutine calculateLoss
 
-    subroutine calculateDLoss(self, dvalues, actual)
+    subroutine calcDLossDSoftmaxCombined(self, dvalues, y_true)
         class(Loss), intent(inout) :: self
         real(kind=8), dimension(:,:), intent(in) :: dvalues
-        integer, dimension(:), intent(in) :: actual
-        real(kind=8), dimension(:,:), allocatable :: actual_onehot
-        integer :: samples, labels, i, j
+        integer, dimension(:), intent(in) :: y_true
+        integer :: samples
 
         samples = size(dvalues, 1)
-        labels = size(dvalues, 2)
+        self%dInputs = dvalues
 
-        allocate(actual_onehot(samples, labels))
-        actual_onehot = 0.0
-
-        do i = 1, samples
-            do j = 1, labels
-                if (j.eq.actual(i)) then
-                    actual_onehot(i, j) = 1.0
-                end if
-            end do 
-        end do
-        
-        self%dInputs = (-1.0 * actual_onehot) / dvalues
-
+        self%dInputs(:, y_true) = self%dInputs(:, y_true) - 1
         self%dInputs = self%dInputs / samples
-        
-    end subroutine calculateDLoss
+    end subroutine calcDLossDSoftmaxCombined
+
 
     function getLoss(self) result(lossv)
         real(kind=8) :: lossv

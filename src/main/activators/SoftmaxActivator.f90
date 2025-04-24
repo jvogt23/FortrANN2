@@ -25,11 +25,15 @@ contains
         maxes = spread(maxval(layerOutputs, 2), 2, size(maxes, 2))
         layerOutputs = layerOutputs - maxes
         ret = e_raise(layerOutputs)
-        ret = ret / (spread(sum(ret, 2), 2, size(maxes, 2)))
+        ret = ret / (spread(sum(ret, 2), 2, size(maxes, 2)) + 1e-8)
         call self%setOutputs(ret)
         self%completed_forward = .true.
     end subroutine softmax_forward
 
+    ! Performs a backward pass on a softmax function.
+    ! WARNING: Possibly bugged. It has caused frequent NaNs in calculations.
+    ! Strongly suggest using combined Softmax/Loss backward pass found in 
+    ! Loss.f90.
     subroutine softmax_backward(self, dvalues)
         class(SoftmaxActivator), intent(inout) :: self
         real(kind=8), dimension(:,:), intent(in) :: dvalues

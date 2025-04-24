@@ -42,7 +42,7 @@ program main
   logical :: dumb_algo ! If false, use backpropogation - used for comparison
 
   dumb_algo = .false.
-  learningRate = 0.01
+  learningRate = .0001
 
 
   ! Read dataset and set up
@@ -137,7 +137,7 @@ program main
 
     call layer2%init(3, 3)
                               ! TODO: Add feedback stuff and test 
-    do i = 1, 10
+    do i = 1, 100
       call layer1%forward(x)
       call activator1%forward(layer1)
       call layer2%forward(activator1%getOutputs())
@@ -146,7 +146,7 @@ program main
       call accuracyCalc%calculate(activator2%getOutputs(), y_true)
 
       ! go backwards
-      call lossCalc%calculateDLoss(activator2%getOutputs(), y_true)
+      call lossCalc%calcDLossDSoftmaxCombined(activator2%getOutputs(), y_true)
       call activator2%backward(lossCalc%getDLoss())
       call layer2%backward(activator2%getDInputs())
       call activator1%backward(layer2%getDInputs())
