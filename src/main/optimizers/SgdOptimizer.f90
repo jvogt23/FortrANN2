@@ -1,6 +1,7 @@
 module cls_SgdOptimizer
     use cls_DenseLayer, only: DenseLayer
 ! TODO: Make Learning rate and decay getter, setter
+! TODO: Implement AdaGrad. Try to do so without reading code examples
     type, public :: SgdOptimizer
         integer, private :: iterations
         real(kind=8), private :: momentum, learning_rate, decay_rate
