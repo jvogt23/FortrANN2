@@ -1,7 +1,7 @@
 module cls_SgdOptimizer
     use cls_DenseLayer, only: DenseLayer
+    implicit none
 ! TODO: Make Learning rate and decay getter, setter
-! TODO: Implement AdaGrad. Try to do so without reading code examples
     type, public :: SgdOptimizer
         integer, private :: iterations
         real(kind=8), private :: momentum, learning_rate, decay_rate
@@ -12,6 +12,10 @@ module cls_SgdOptimizer
         procedure, public :: get_momentum
         procedure, public :: set_momentum
         procedure, public :: update_parameters
+        procedure, public :: get_learningrate
+        procedure, public :: set_learningrate
+        procedure, public :: get_decayrate
+        procedure, public :: set_decayrate
         procedure, private :: apply_decay
     end type SgdOptimizer
 
@@ -20,7 +24,7 @@ contains
     subroutine init(self, learning_rate, momentum, decay_rate, weight_rows, &
         weight_cols)
         class(SgdOptimizer), INTENT(INOUT) :: self
-        real(kind=8), intent(in) :: momentum
+        real(kind=8), intent(in) :: learning_rate, decay_rate, momentum
         integer, intent(in) :: weight_rows, weight_cols
         self%momentum = momentum
         self%learning_rate = learning_rate
@@ -43,6 +47,40 @@ contains
         real(kind=8) :: momentum
         momentum = self%momentum
     end function get_momentum
+
+    function get_learningrate(self) result(learning_rate)
+        class(SgdOptimizer), intent(in) :: self
+        real(kind=8) :: learning_rate
+        learning_rate = self%learning_rate
+    end function get_learningrate
+
+    subroutine set_learningrate(self, learning_rate)
+        class(SgdOptimizer), intent(in) :: self
+        real(kind=8), intent(in) :: learning_rate
+        if (learning_rate > 0.0) then
+            self%learning_rate = learning_rate
+        else 
+            print *, "Cannot set negative learning rate."
+            STOP
+        end if
+    end subroutine set_learningrate
+
+    function get_decayrate(self) result(decay_rate)
+        class(SgdOptimizer), intent(in) :: self
+        real(kind=8) :: decay_rate
+        decay_rate = self%decay_rate
+    end function get_decayrate
+
+    subroutine set_decayrate(self, decay_rate)
+        class(SgdOptimizer), intent(in) :: self
+        real(kind=8), intent(in) :: decay_rate
+        if (decay_rate > 0.0) then
+            self%decay_rate = decay_rate
+        else 
+            print *, "Cannot set negative decay rate."
+            STOP
+        end if
+    end subroutine set_decayrate
 
     subroutine update_parameters(self, layer)
         class(SgdOptimizer), intent(inout) :: self
@@ -75,6 +113,4 @@ contains
             (1 / (1 + (self%iterations * self%decay_rate)))
         end if        
     end subroutine apply_decay
-
-
 end module cls_SgdOptimizer
